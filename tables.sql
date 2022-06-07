@@ -1,0 +1,1 @@
+CREATE DATABASE "projeto16-shortly";
