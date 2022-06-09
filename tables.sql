@@ -24,3 +24,10 @@ CREATE TABLE visitors (
     quantity integer,
     "urlId" integer REFERENCES urls(id)
 )
+
+CREATE TABLE sessions (
+	id serial NOT NULL PRIMARY KEY,
+    token text NOT NULL,
+    "userId" integer REFERENCES users(id),
+    createdAt timestamp
+)
