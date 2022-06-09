@@ -1,14 +1,14 @@
 import db from "./../app/db.js";
 
-
 export async function validateToken(req, res, next) {
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
   if (!token) return res.sendStatus(401);
   try {
-    const session = await db.query(`SELECT FROM sessions WHERE token=$1`, [
+    const result = await db.query('SELECT * FROM sessions WHERE token = $1', [
       token,
     ]);
+    const session = result.rows[0];
     if (!session) return res.sendStatus(401);
 
     const user = await db.query(`SELECT FROM users WHERE id=$1`, [
@@ -16,11 +16,10 @@ export async function validateToken(req, res, next) {
     ]);
     if (!user) return res.sendStatus(404);
 
-    res.locals.user = user;
-
+    res.locals.userId = session.userId;
     next();
   } catch (e) {
     console.error("token ", e);
-    res.send("Error checking token");
+    res.status(500).send("Error checking token");
   }
-}
+};

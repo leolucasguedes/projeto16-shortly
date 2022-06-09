@@ -26,7 +26,7 @@ export async function signUp(req, res) {
 
   try {
     const verifyUser = await db.query(`SELECT FROM users WHERE email=$1`, [
-      user.email,
+      user.email
     ]);
     //console.log(checkUser)
     if (verifyUser.rows.length !== 0) {
@@ -44,36 +44,31 @@ export async function signUp(req, res) {
   }
 }
 
-export async function signIn(req, res) {
-  const { email, password } = req.body;
-  try {
-    const user = await db.query(`SELECT FROM users WHERE email=$1`, [email]);
-    const userSessionExists = await db.query(
-      `SELECT FROM sessions WHERE userId=$1`,
-      [user.id]
-    );
-    if (
-      user &&
-      bcrypt.compareSync(password, user.password) &&
-      userSessionExists
-    ) {
-      const token = uuid();
-      await db.query(`UPDATE sessions SET token=${token} WHERE userId=$1`, [
-        user.id,
-      ]);
-      res.status(200).send({ token });
-    } else if (user && bcrypt.compareSync(password, user.password)) {
-      const token = uuid();
-      await database.query(
-        `INSERT INTO sessions (token, "userId") VALUES ($1, $2)`,
-        [token, user.rows[0].id]
-      );
-      return res.status(200).send({ token });
-    } else {
-      res.status(401).send("Erro ao logar");
+export async function signIn(req,res){
+    const {email, password} = req.body;
+    try{
+        const user = await db.query(`SELECT FROM users WHERE email=$1`, [
+            email
+          ]);
+        const userSessionExists = await db.query(`SELECT FROM sessions WHERE userId=$1`, [
+            user.id
+          ]);
+        if(user && bcrypt.compareSync(password, user.password) && userSessionExists){
+            const token = uuid(); 
+            await db.query(`UPDATE sessions SET token=${token} WHERE userId=$1`, [
+                user.id
+              ]);
+            res.status(200).send({token});
+        }
+        else if(user && bcrypt.compareSync(password, user.password)){
+            const token = uuid();            
+            await database.query(`INSERT INTO sessions (token, "userId") VALUES ($1, $2)`, [token, user.rows[0].id]);
+            return res.status(200).send({token});            
+        }else{
+            res.status(401).send("Erro ao logar");
+        }
+    }catch(e){
+        console.error(e);
+        res.status(500).send("Erro de conexão com servidor")
     }
-  } catch (e) {
-    console.error(e);
-    res.status(500).send("Erro de conexão com servidor");
-  }
 }
