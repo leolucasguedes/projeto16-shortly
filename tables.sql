@@ -5,8 +5,7 @@ CREATE TABLE "users"(
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL UNIQUE,
     "password" TEXT NOT NULL,
-    "createdAt" TIMESTAMP DEFAULT NOW(),
-    "deletedAt" TIMESTAMP DEFAULT NULL
+    "createdAt" TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE "urls"(
