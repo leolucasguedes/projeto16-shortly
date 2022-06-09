@@ -1,33 +1,27 @@
 CREATE DATABASE "projeto16-shortly";
 
-CREATE TABLE users (
-	id serial NOT NULL PRIMARY KEY,
-    name text NOT NULL,
-    email text NOT NULL UNIQUE,
-    password text NOT NULL
-)
+CREATE TABLE "users"(
+    "id" SERIAL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL UNIQUE,
+    "password" TEXT NOT NULL,
+    "createdAt" TIMESTAMP DEFAULT NOW(),
+    "deletedAt" TIMESTAMP DEFAULT NULL
+);
 
-CREATE TABLE urls (
-	id serial NOT NULL PRIMARY KEY,
-    url text NOT NULL,
-    "userId" integer REFERENCES users(id)
-)
+CREATE TABLE "urls"(
+    "id" SERIAL PRIMARY KEY,
+    "url" TEXT NOT NULL,
+    "shortUrl" TEXT NOT NULL,
+    "userId" INTEGER REFERENCES users(id),
+    "visitCount" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP DEFAULT NOW(),
+    "deletedAt" TIMESTAMP DEFAULT NULL
+);
 
-CREATE TABLE "shortUrls" (
-	id serial NOT NULL PRIMARY KEY,
-    "shortUrl" text NOT NULL,
-    "urlId" integer REFERENCES urls(id)
-)
-
-CREATE TABLE visitors (
-	id serial NOT NULL PRIMARY KEY,
-    quantity integer,
-    "urlId" integer REFERENCES urls(id)
-)
-
-CREATE TABLE sessions (
-	id serial NOT NULL PRIMARY KEY,
-    token text NOT NULL,
-    "userId" integer REFERENCES users(id),
-    createdAt timestamp
-)
+CREATE TABLE "sessions"(
+    "id" SERIAL PRIMARY KEY,
+    "token" TEXT NOT NULL UNIQUE,
+    "userId" INTEGER REFERENCES users(id),
+    "createdAt" TIMESTAMP DEFAULT NOW()
+);
