@@ -2,11 +2,11 @@ import pg from 'pg';
 
 const { Pool } = pg;
 
-const user = 'postgres';
+const user = process.env.USER;
 const password = process.env.PASSWORD;
-const host = 'localhost';
+const host = process.env.HOST;
 const port = 5432;
-const database = 'projeto16-shortly';
+const database = process.env.DATABASE_NAME;
 
 const db = new Pool({
   user,
