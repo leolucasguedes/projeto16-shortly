@@ -16,6 +16,7 @@ app.use(json());
 
 app.use(authRouter);
 app.use(urlsRouter);
+app.use(userRouter);
 
 const PORT = process.env.PORT || 4000;
 
