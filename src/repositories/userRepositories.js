@@ -1,30 +1,30 @@
 import db from "./../app/db.js";
 
 async function getUser(userId) {
-	return db.query(
-        `
+  return db.query(
+    `
         SELECT users.id, users.name, SUM(urls."visitCount") as "visitCount" 
         FROM users LEFT JOIN urls ON urls."userId" = users.id
         WHERE users.id = $1
         GROUP BY users.id;
         `,
-        [userId]
-      );
+    [userId]
+  );
 }
 
 async function getShortUrl(userId) {
-	return db.query(
-        `
+  return db.query(
+    `
         SELECT urls.id, urls."shortUrl", urls.url, urls."visitCount" FROM urls
         JOIN users ON users.id = urls."userId"
         WHERE users.id = $1;
         `,
-        [userId]
-      );
+    [userId]
+  );
 }
 
 async function getRanking() {
-	return db.query(`
+  return db.query(`
     SELECT users.id, users.name, COUNT(urls.id) as "linksCount", SUM(urls."visitCount") as "visitCount" FROM users 
     LEFT JOIN urls ON users.id = urls."userId"
     WHERE urls."deletedAt" IS NULL
@@ -35,7 +35,7 @@ async function getRanking() {
 }
 
 export const userRepository = {
-	getUser,
-    getShortUrl,
-    getRanking
-}
+  getUser,
+  getShortUrl,
+  getRanking,
+};

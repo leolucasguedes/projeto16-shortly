@@ -47,7 +47,7 @@ export async function signIn(req, res) {
     return;
   }
   try {
-    let { rows: user } = await userRepository.findUser(email)
+    let { rows: user } = await userRepository.findUser(email);
     if (!user[0] || !bcrypt.compareSync(password, user[0].password)) {
       return res.sendStatus(401);
     }
