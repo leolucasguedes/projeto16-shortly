@@ -47,28 +47,16 @@ export async function signIn(req, res) {
     return;
   }
   try {
-    const user = await userRepository.findUser(email)
-    const userSessionExists = await userRepository.findUserSession(user)
-    if (
-      user &&
-      bcrypt.compareSync(password, user.password) &&
-      userSessionExists
-    ) {
-      const token = uuid();
-      await db.query(`UPDATE sessions SET token=${token} WHERE userId=$1`, 
-      [user.id]
-      );
-      res.status(200).send({ token });
-    } else if (user && bcrypt.compareSync(password, user.password)) {
-      const token = uuid();
-      await db.query(
-        `INSERT INTO sessions (token, "userId") VALUES ($1, $2)`,
-        [token, user.rows[0].id]
-      );
-      return res.status(200).send({ token });
-    } else {
-      res.status(401).send("Erro ao logar");
+    let { rows: user } = await userRepository.findUser(email)
+    if (!user[0] || !bcrypt.compareSync(password, user[0].password)) {
+      return res.sendStatus(401);
     }
+    const token = uuid();
+    await db.query('INSERT INTO sessions (token, "userId") VALUES ($1, $2)', [
+      token,
+      user[0].id,
+    ]);
+    res.status(200).send({ token });
   } catch (e) {
     console.error(e);
     res.status(500).send("Erro de conexão com servidor");

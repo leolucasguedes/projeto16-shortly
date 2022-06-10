@@ -1,4 +1,4 @@
-import db from "./../config/database.js";
+import db from "./../app/db.js";
 
 import { userRepository } from "../repositories/userRepositories.js";
 

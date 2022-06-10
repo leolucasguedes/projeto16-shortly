@@ -8,12 +8,7 @@ async function findUser(email) {
 	return db.query(`SELECT * FROM users WHERE email=$1`, [email]);
 }
 
-async function findUserSession(user) {
-	return db.query(`SELECT * FROM sessions WHERE userId=$1`, [user.rows[0].id]);
-}
-
 export const userRepository = {
 	verifyUser,
-    findUser,
-    findUserSession
+    findUser
 }
