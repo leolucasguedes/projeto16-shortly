@@ -1,16 +1,15 @@
-import db from "./../app/db.js";
-import joi from "joi";
+import db from "../app/db.js";
 import { nanoid } from "nanoid";
+
+import { userRepository } from "../repositories/urlRepositories.js";
+
+import { urlSchema } from "../schemas/urlSchema.js";
 
 export async function postUrl(req, res) {
   const { url } = req.body;
   const { userId } = res.locals;
 
-  const schema = joi.object({
-    url: joi.string().uri().required(),
-  });
-
-  const { error } = schema.validate(url, { abortEarly: false });
+  const { error } = urlSchema.validate(url, { abortEarly: false });
 
   if (error) {
     res.status(422).send("Erro ao cadastrar");
@@ -32,16 +31,13 @@ export async function postUrl(req, res) {
 export async function getUrl(req, res) {
   const urlId = parseInt(req.params.id);
   try {
-    const result = await db.query(
-      'SELECT * FROM urls WHERE id = $1 AND "deletedAt" IS NULL',
-      [urlId]
-    );
+    const result = await userRepository.getUrl(urlId);
     const validUrl = result.rows[0];
     if (!validUrl) return res.sendStatus(404);
     const { id, shortUrl, url } = validUrl;
     res.status(200).send({ id, shortUrl, url });
   } catch (e) {
-    res.status(500).send(error);
+    res.status(500).send(e);
   }
 }
 
@@ -54,7 +50,7 @@ export async function redirectUrl(req, res) {
     ]);
     res.redirect(url);
   } catch (e) {
-    res.status(500).send(error);
+    res.status(500).send(e);
   }
 }
 
@@ -62,10 +58,7 @@ export async function deleteUrl(req, res) {
   const urlId = parseInt(req.params.id);
   const { userId } = res.locals;
   try {
-    const result = await db.query(
-      'SELECT * FROM urls WHERE id = $1 AND "deletedAt" IS NULL',
-      [urlId]
-    );
+    const result = await userRepository.getUrl(urlId);
     if (result.rowCount === 0) return res.sendStatus(404);
     const validUrl = result.rows[0];
     if (validUrl.userId !== userId) return res.sendStatus(401);
@@ -73,7 +66,7 @@ export async function deleteUrl(req, res) {
       urlId,
     ]);
     res.sendStatus(204);
-  } catch (error) {
-    res.status(500).send(error);
+  } catch (e) {
+    res.status(500).send(e);
   }
 };

@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { postUrl, getUrl, redirectUrl, deleteUrl } from "./../controllers/urlsControlllers.js";
+import { postUrl, getUrl, redirectUrl, deleteUrl } from "../controllers/urlsControllers.js";
 import { getUrlByShortUrl } from "./../middlewares/urlMiddleware.js";
 import { validateToken } from "./../middlewares/authMiddleware.js";
 
