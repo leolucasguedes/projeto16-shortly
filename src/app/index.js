@@ -5,18 +5,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import authRouter from "./../routers/authRouters.js";
-import urlsRouter from "../routers/urlsRouters.js";
-import userRouter from "./../routers/usersRouters.js";
+import router from "../routers";
 
 const app = express();
 
 app.use(cors());
 app.use(json());
 
-app.use(authRouter);
-app.use(urlsRouter);
-app.use(userRouter);
+app.use(router);
 
 const PORT = process.env.PORT || 4000;
 

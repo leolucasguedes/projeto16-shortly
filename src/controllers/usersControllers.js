@@ -1,5 +1,3 @@
-import db from "./../app/db.js";
-
 import { userRepository } from "../repositories/userRepositories.js";
 
 export async function getUsers(req, res) {

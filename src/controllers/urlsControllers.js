@@ -1,70 +1,67 @@
-import db from "../app/db.js";
 import { nanoid } from "nanoid";
 
-import { userRepository } from "../repositories/urlRepositories.js";
-
-import { urlSchema } from "../schemas/urlSchema.js";
+import { urlRepository } from "../repositories/urlRepositories.js";
 
 export async function postUrl(req, res) {
   const { url } = req.body;
-  const { userId } = res.locals;
-
-  const { error } = urlSchema.validate(url, { abortEarly: false });
-
-  if (error) {
-    res.status(422).send("Erro ao cadastrar");
-    return;
-  }
+  const { id } = res.locals.user;
+  const NUM_OF_CHARS = 8;
+  const shortURL = nanoid(NUM_OF_CHARS);
 
   try {
-    const shortUrl = nanoid();
-    await db.query(
-      'INSERT INTO urls ("url", "shortUrl", "userId") VALUES ($1, $2, $3)',
-      [url, shortUrl, userId]
-    );
-    res.status(201).send({ shortUrl });
+    await urlRepository.createShortUrl(url, shortURL, id)
+    res.status(201).send({ shortURL });
   } catch (e) {
     res.status(500).send(e);
   }
 }
 
 export async function getUrl(req, res) {
-  const urlId = parseInt(req.params.id);
+  const { id } = req.params;
   try {
-    const result = await userRepository.getUrl(urlId);
-    const validUrl = result.rows[0];
-    if (!validUrl) return res.sendStatus(404);
-    const { id, shortUrl, url } = validUrl;
-    res.status(200).send({ id, shortUrl, url });
+    const result = await urlRepository.getUrl(id);
+    if(result.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+  
+    const [url] = result.rows;
+  
+    delete url.visitCount;
+    delete url.userId;
+    res.status(200).send(url);
   } catch (e) {
     res.status(500).send(e);
   }
 }
 
 export async function redirectUrl(req, res) {
-  const { id, url, visitCount } = res.locals.validUrl;
+  const { shortUrl } = req.params;
   try {
-    await db.query('UPDATE urls SET "visitCount" = $1 WHERE id = $2', [
-      visitCount + 1,
-      id,
-    ]);
-    res.redirect(url);
+    const result = await urlRepository.getByShortURL(shortUrl)
+    if (result.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+    const [url] = result.rows;
+    await urlRepository.incrementURLVisitCount(url.id);
+    res.redirect(url.url);
   } catch (e) {
     res.status(500).send(e);
   }
 }
 
 export async function deleteUrl(req, res) {
-  const urlId = parseInt(req.params.id);
-  const { userId } = res.locals;
+  const { id } = req.params;
+  const { user } = res.locals;
   try {
-    const result = await userRepository.getUrl(urlId);
+    const result = await urlRepository.getUrl(urlId);
     if (result.rowCount === 0) return res.sendStatus(404);
-    const validUrl = result.rows[0];
-    if (validUrl.userId !== userId) return res.sendStatus(401);
-    await db.query('UPDATE urls SET "deletedAt" = NOW() WHERE id = $1', [
-      urlId,
-    ]);
+
+    const [url] = result.rows;
+    if(url.userId !== user.id) {
+      return res.sendStatus(401);
+    }
+    await urlRepository.updateDelete(id);
+    await urlRepository.deleteURL(id);
     res.sendStatus(204);
   } catch (e) {
     res.status(500).send(e);

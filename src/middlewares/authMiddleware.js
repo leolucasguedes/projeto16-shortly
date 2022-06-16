@@ -1,25 +1,22 @@
-import db from "./../app/db.js";
+import { authRepository } from "../repositories/authRepositories";
 
 export async function validateToken(req, res, next) {
-  const { authorization } = req.headers;
+  const authorization = req.headers.authorization;
   const token = authorization?.replace("Bearer ", "");
   if (!token) return res.sendStatus(401);
   try {
-    const result = await db.query('SELECT * FROM sessions WHERE token = $1', [
-      token,
-    ]);
-    const session = result.rows[0];
+    const { rows:sessions } = await authRepository.validateToken(token)
+    const [session] = sessions;
     if (!session) return res.sendStatus(401);
 
-    const user = await db.query(`SELECT FROM users WHERE id=$1`, [
-      session.userId,
-    ]);
+    const { rows: users } = await authRepository.findUser(session.userId)
+    const [user] = users;
     if (!user) return res.sendStatus(404);
 
-    res.locals.userId = session.userId;
+    res.locals.user = user;
     next();
   } catch (e) {
-    console.error("token ", e);
+    console.log(e);
     res.status(500).send("Error checking token");
   }
 };

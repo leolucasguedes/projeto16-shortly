@@ -34,8 +34,13 @@ async function getRanking() {
     `);
 }
 
+async function verifyUser(id) {
+  return db.query("SELECT * FROM users WHERE id = $1", [userId]);
+}
+
 export const userRepository = {
   getUser,
   getShortUrl,
   getRanking,
+  verifyUser
 };
