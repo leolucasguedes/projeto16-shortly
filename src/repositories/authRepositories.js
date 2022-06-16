@@ -24,7 +24,7 @@ async function validateToken(token) {
   return db.query('SELECT * FROM sessions WHERE token = $1', [token]);
 }
 
-async function findUser(id) {
+async function getUserById(id) {
   return db.query(`SELECT FROM users WHERE id=$1`, [id]);
 }
 
@@ -34,5 +34,5 @@ export const authRepository = {
   createUser,
   createSession,
   validateToken,
-  findUser
+  getUserById
 };

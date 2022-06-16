@@ -1,4 +1,4 @@
-import { userRepository } from "../repositories/userRepositories";
+import { userRepository } from "../repositories/userRepositories.js";
 
 export async function verifyUser(req, res, next) {
   const userId = parseInt(req.params.id);

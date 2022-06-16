@@ -1,4 +1,4 @@
-import { authRepository } from "../repositories/authRepositories";
+import { authRepository } from "../repositories/authRepositories.js";
 
 export async function validateToken(req, res, next) {
   const authorization = req.headers.authorization;
@@ -9,7 +9,7 @@ export async function validateToken(req, res, next) {
     const [session] = sessions;
     if (!session) return res.sendStatus(401);
 
-    const { rows: users } = await authRepository.findUser(session.userId)
+    const { rows: users } = await authRepository.getUserById(session.userId)
     const [user] = users;
     if (!user) return res.sendStatus(404);
 
